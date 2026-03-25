@@ -27,8 +27,8 @@ class _MainScreenState extends State<MainScreen> {
   final _trackerKey = GlobalKey<TrackerScreenState>();
 
   // Configuration for the shared header.
-  static const _titles = ['Task Manager', 'Tracker'];
-  static const _subtitles = ['Stay organized.', 'Build consistent habits.'];
+  static const _titles = ['Plan Your Tasks', 'Track Your Goals'];
+  static const _subtitles = ['Stay Organized.', 'Build Consistent Habits.'];
 
   @override
   void initState() {
@@ -180,17 +180,17 @@ class _MainScreenState extends State<MainScreen> {
     {
       'label': 'By Start Date',
       'value': SortOptions.startDate,
-      'icon': Icons.calendar_today_rounded,
+      'icon': Icons.event,
     },
     {
       'label': 'By End Date',
       'value': SortOptions.endDate,
-      'icon': Icons.event_rounded,
+      'icon': Icons.event_available,
     },
     {
       'label': 'By Created Date',
       'value': SortOptions.createdDate,
-      'icon': Icons.access_time_rounded,
+      'icon': Icons.edit_calendar,
     },
     {
       'label': 'Overdue First',
@@ -468,9 +468,9 @@ class _BottomNav extends StatelessWidget {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: activeColor.withValues(alpha: 0.4),
+                        color: activeColor.withValues(alpha: 0.2),
                         blurRadius: 16,
-                        offset: const Offset(0, 6),
+                        offset: const Offset(0, 0),
                       ),
                     ],
                   ),

@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -6,39 +7,39 @@ import 'package:timezone/data/latest.dart' as tz;
 import '../models/task.dart';
 
 /// Service responsible for managing all local notifications in the application.
-/// 
-/// Handles initialization, permission requests, and complex scheduling logic for 
+///
+/// Handles initialization, permission requests, and complex scheduling logic for
 /// both tasks and habit trackers.
 class NotificationService {
   /// Singleton instance of the NotificationService.
   static final NotificationService _instance = NotificationService._internal();
-  
+
   /// Factory constructor to return the singleton instance.
   factory NotificationService() => _instance;
-  
+
   NotificationService._internal();
 
   /// Plugin instance for interacting with native notification systems.
   final FlutterLocalNotificationsPlugin _plugin =
       FlutterLocalNotificationsPlugin();
-      
+
   /// Key for persisting notification permission status.
   static const _permKey = 'notif_permission_granted';
-  
+
   /// Internal state tracking whether notification permissions have been granted.
   bool _permissionGranted = false;
-  
+
   /// Public getter for the permission status.
   bool get permissionGranted => _permissionGranted;
 
   /// Initializes the notification service.
-  /// 
+  ///
   /// Should be called exactly once from the `main()` function. Sets up timezones,
   /// plugin settings, and restores previously saved permission states.
   Future<void> init() async {
     // Initialize the full timezone database.
     tz.initializeTimeZones();
-    
+
     // Set the local timezone for accurate scheduling across DST transitions.
     final deviceTimeZone = await FlutterTimezone.getLocalTimezone();
     tz.setLocalLocation(tz.getLocation(deviceTimeZone.identifier));
@@ -46,15 +47,16 @@ class NotificationService {
     // Configure low-level initialization settings for Android and iOS.
     const android = AndroidInitializationSettings('@mipmap/ic_launcher');
     const ios = DarwinInitializationSettings(
-      requestAlertPermission: false, // We ask for permission contextually later.
+      requestAlertPermission:
+          false, // We ask for permission contextually later.
       requestBadgePermission: false,
       requestSoundPermission: false,
     );
-    
+
     await _plugin.initialize(
       settings: const InitializationSettings(android: android, iOS: ios),
     );
-    
+
     // Restore persisted permission state.
     final prefs = await SharedPreferences.getInstance();
     _permissionGranted = prefs.getBool(_permKey) ?? false;
@@ -72,12 +74,12 @@ class NotificationService {
   }
 
   /// Explicitly requests notification permissions from the user.
-  /// 
+  ///
   /// Should be called at a contextual moment, like when creating a task.
   /// Returns `true` if permission was granted.
   Future<bool> requestPermission() async {
     bool granted = false;
-    
+
     // Request permissions on Android.
     final androidImplementation = _plugin
         .resolvePlatformSpecificImplementation<
@@ -87,7 +89,7 @@ class NotificationService {
       final result = await androidImplementation
           .requestNotificationsPermission();
       granted = result ?? false;
-      
+
       // Request exact alarm permission (Android 12+) for precise notification timing.
       await androidImplementation.requestExactAlarmsPermission();
     }
@@ -105,18 +107,18 @@ class NotificationService {
       );
       granted = result ?? false;
     }
-    
+
     _permissionGranted = granted;
-    
+
     // Persist permission state to avoid re-asking unnecessarily.
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_permKey, granted);
-    
+
     return granted;
   }
 
   /// Schedules all relevant notifications for a specific [task].
-  /// 
+  ///
   /// Includes an immediate creation confirmation and various reminders
   /// based on the task's [ReminderMode].
   Future<void> scheduleTaskNotifications(Task task) async {
@@ -132,11 +134,11 @@ class NotificationService {
 
     await _scheduleNotification(
       id: task.notificationStartId,
-      title: 'Task Manager',
-      body: '"${task.title}" — Due ${_formatDate(task.endDate)}',
+      title: task.title,
+      body: 'Due ${_formatDate(task.endDate)}',
       scheduledDate: creationNotifyTime,
     );
-    
+
     if (task.reminderMode == ReminderMode.none) return;
 
     final h = task.reminderHour;
@@ -155,13 +157,13 @@ class NotificationService {
         if (remind.isAfter(now)) {
           await _scheduleNotification(
             id: task.notificationReminderId,
-            title: 'Task Due Today!',
-            body: '"${task.title}" is due today.',
+            title: task.title,
+            body: 'Due Today!',
             scheduledDate: remind,
           );
         }
         break;
-        
+
       case ReminderMode.onceDayBefore:
         // Single reminder 24 hours before the due date.
         final dayBefore = task.endDate.subtract(const Duration(days: 1));
@@ -175,13 +177,13 @@ class NotificationService {
         if (remind.isAfter(now)) {
           await _scheduleNotification(
             id: task.notificationReminderId,
-            title: 'Due Tomorrow!',
-            body: '"${task.title}" is due tomorrow.',
+            title: task.title,
+            body: 'Due Tomorrow!',
             scheduledDate: remind,
           );
         }
         break;
-        
+
       case ReminderMode.daily:
         // Repeating daily reminders from start until the due date.
         // Capped at 30 days to prevent ID exhaustion.
@@ -193,10 +195,10 @@ class NotificationService {
           if (remind.isAfter(now)) {
             await _scheduleNotification(
               id: task.notificationReminderId + i,
-              title: i == days ? 'Task Due Today!' : 'Task Reminder',
+              title: task.title,
               body: i == days
-                  ? '"${task.title}" is due today!'
-                  : '"${task.title}" — due ${_formatDate(task.endDate)}.',
+                  ? 'Due today!'
+                  : 'Due ${_formatDate(task.endDate)}.',
               scheduledDate: remind,
             );
           }
@@ -217,13 +219,14 @@ class NotificationService {
         if (remind.isAfter(now)) {
           await _scheduleNotification(
             id: task.notificationReminderId,
-            title: 'Task Due in $daysBefore day${daysBefore > 1 ? "s" : ""}',
-            body: '"${task.title}" is due on ${_formatDate(task.endDate)}.',
+            title: task.title,
+            body:
+                'Due in $daysBefore day${daysBefore > 1 ? "s" : ""} on ${_formatDate(task.endDate)}.',
             scheduledDate: remind,
           );
         }
         break;
-        
+
       case ReminderMode.none:
         break;
     }
@@ -232,8 +235,18 @@ class NotificationService {
   /// Helper to format dates for notification body text (e.g., "15 Mar").
   String _formatDate(DateTime d) {
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return '${d.day} ${months[d.month - 1]}';
   }
@@ -255,8 +268,8 @@ class NotificationService {
         notificationDetails: const NotificationDetails(
           android: AndroidNotificationDetails(
             'task_manager_channel',
-            'Task Manager',
-            channelDescription: 'Task reminders and notifications',
+            'Trak',
+            channelDescription: 'Task & Goals reminders and notifications',
             importance: Importance.high,
             priority: Priority.high,
             icon: '@mipmap/ic_launcher',
@@ -284,8 +297,8 @@ class NotificationService {
   // ═══════════════════════════════════════════════════════
 
   /// Schedules daily notifications for a habit [tracker].
-  /// 
-  /// Includes a 3-second creation confirmation and up to 30 upcoming 
+  ///
+  /// Includes a 3-second creation confirmation and up to 30 upcoming
   /// daily reminders at the user's preferred time.
   Future<void> scheduleTrackerNotifications(dynamic tracker) async {
     await cancelTrackerNotifications(tracker);
@@ -297,8 +310,8 @@ class NotificationService {
     // ── Immediate Creation Confirmation ──
     await _scheduleNotification(
       id: id,
-      title: 'Habit Tracker',
-      body: '"${tracker.title}" — tracking starts today!',
+      title: tracker.title,
+      body: 'Tracking starts today!',
       scheduledDate: now.add(const Duration(seconds: 3)),
     );
 
@@ -308,6 +321,19 @@ class NotificationService {
     final m = tracker.reminderMinute as int;
 
     // ── Queue next 30 daily reminders ──
+    const messages = [
+      'Time to get started!',
+      "Don't forget to track your goal!",
+      'Time to log your progress!',
+      'Stay consistent!',
+      "Let's do it now!",
+      'Keep building your progress!',
+      'Stay on track!',
+      'Consistency is key!',
+      'Ready to record your achievement today?',
+      'Check in with your goal!',
+    ];
+    final random = Random();
     int scheduledCount = 0;
     for (int i = 0; scheduledCount < 30; i++) {
       final day = now.add(Duration(days: i));
@@ -315,8 +341,10 @@ class NotificationService {
       if (remind.isAfter(now)) {
         await _scheduleNotification(
           id: id + 1 + scheduledCount,
-          title: 'Habit Reminder',
-          body: 'Don\'t forget to track your habit: "${tracker.title}"',
+          title: tracker.title,
+          body: messages.isNotEmpty
+              ? messages[random.nextInt(messages.length)]
+              : 'Time to work on your goal!',
           scheduledDate: remind,
         );
         scheduledCount++;
@@ -333,4 +361,3 @@ class NotificationService {
     }
   }
 }
-

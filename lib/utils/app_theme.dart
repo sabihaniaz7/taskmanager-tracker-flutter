@@ -7,11 +7,11 @@ class AppColors {
   static const List<int> cardPalette = [
     0xFFD8ECFF,
     0xFFFFF3C4,
-    0xFFEAE8FF,
-    0xFFDDF5E8,
     0xFFFFEDD8,
     0xFFF0E0FF,
     0xFFD8F5F2,
+    0xFFEAE8FF,
+    0xFFDDF5E8,
   ];
 
   // Light Mode Colors
@@ -36,7 +36,7 @@ class AppColors {
   static const warning = Color(0xFFE8A030);
 
   /// Selects an appropriate title color that contrasts with the card background.
-  /// 
+  ///
   /// Fades the color slightly if [isCompleted] is true.
   static Color titleColor(BuildContext context, bool isCompleted) {
     final theme = Theme.of(context);
@@ -350,8 +350,12 @@ class AppTheme {
       ),
     ),
   );
+
   /// Shared input decoration for all text fields to ensure visual consistency.
-  static InputDecoration commonInputDecoration(BuildContext context, String hint) {
+  static InputDecoration commonInputDecoration(
+    BuildContext context,
+    String hint,
+  ) {
     final theme = Theme.of(context);
     return InputDecoration(
       hintText: hint,
@@ -387,16 +391,16 @@ class AppTheme {
 class ThemeModeNotifier extends ChangeNotifier {
   /// Storage key for persisting the chosen theme mode.
   static const _key = 'theme_mode';
-  
+
   ThemeMode _mode = ThemeMode.system;
-  
+
   /// The current theme mode.
   ThemeMode get mode => _mode;
-  
+
   ThemeModeNotifier(ThemeMode initial) : _mode = initial;
 
   /// Toggles between Light and Dark mode, persisting the selection.
-  /// 
+  ///
   /// Note: Once toggled, it will not return to [ThemeMode.system] unless manually reset.
   void toggle() {
     _mode = _mode == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
@@ -411,7 +415,7 @@ class ThemeModeNotifier extends ChangeNotifier {
   }
 
   /// Loads the persisted theme mode from local storage.
-  /// 
+  ///
   /// Defaults to [ThemeMode.system] if no preference is saved.
   static Future<ThemeMode> load() async {
     final prefs = await SharedPreferences.getInstance();
@@ -427,4 +431,3 @@ class ThemeModeNotifier extends ChangeNotifier {
     }
   }
 }
-

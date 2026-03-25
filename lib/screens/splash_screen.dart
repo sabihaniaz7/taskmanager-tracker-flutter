@@ -17,23 +17,23 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  
+
   /// Animation for the main app title and subtitle fade-in.
   late Animation<double> _fadeAnimation;
-  
+
   /// Animation for the main app title and subtitle sliding up.
   late Animation<Offset> _slideAnimation;
-  
+
   /// Animation for the developer credit text fade-in.
   late Animation<double> _creditFadeAnimation;
 
   @override
   void initState() {
     super.initState();
-    
+
     // Hide status bar for a clean, immersive splash experience.
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
-    
+
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1800),
@@ -46,22 +46,20 @@ class _SplashScreenState extends State<SplashScreen>
     );
 
     // Subtle upward slide effect for the app name.
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
-      ),
-    );
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _controller,
+            curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
+          ),
+        );
 
     // Fade in the developer credits slightly after the main title.
     _creditFadeAnimation = CurvedAnimation(
       parent: _controller,
       curve: const Interval(0.4, 1.0, curve: Curves.easeOut),
     );
-    
+
     _controller.forward();
 
     // Schedule navigation to the main application screen after the animations.
@@ -69,7 +67,7 @@ class _SplashScreenState extends State<SplashScreen>
       if (mounted) {
         // Restore standard system UI (status bar and navigation bar).
         SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-        
+
         Navigator.of(context).pushReplacement(
           PageRouteBuilder(
             pageBuilder: (_, _, _) => const MainScreen(),
@@ -93,7 +91,7 @@ class _SplashScreenState extends State<SplashScreen>
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bg = isDark ? AppColors.darkBg : AppColors.lightBg;
     final primary = Theme.of(context).colorScheme.primary;
-    
+
     return Scaffold(
       backgroundColor: bg,
       body: Stack(
@@ -117,7 +115,7 @@ class _SplashScreenState extends State<SplashScreen>
               ),
             ),
           ),
-          
+
           // ── Subtle background glow (Bottom-Right) ──────────────────
           Positioned(
             bottom: -120,
@@ -137,7 +135,7 @@ class _SplashScreenState extends State<SplashScreen>
               ),
             ),
           ),
-          
+
           // ── Center: App Branding ───────────────────────────────
           Center(
             child: AnimatedBuilder(
@@ -150,7 +148,7 @@ class _SplashScreenState extends State<SplashScreen>
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'Task Manager',
+                        'Trak',
                         style: TextStyle(
                           fontSize: 32,
                           fontWeight: FontWeight.w800,
@@ -162,7 +160,7 @@ class _SplashScreenState extends State<SplashScreen>
                       ),
                       const SizedBox(height: AppSizes.spacingS),
                       Text(
-                        'Stay Organized. Stay Ahead.',
+                        'Plan Better. Achieve Faster.',
                         style: TextStyle(
                           fontSize: AppSizes.fontBody,
                           fontWeight: FontWeight.w500,
@@ -178,7 +176,7 @@ class _SplashScreenState extends State<SplashScreen>
               ),
             ),
           ),
-          
+
           // ── Bottom: Credits ──────────────────────────────────
           Positioned(
             bottom: 48,
@@ -190,29 +188,31 @@ class _SplashScreenState extends State<SplashScreen>
                 opacity: _creditFadeAnimation.value,
                 child: Column(
                   children: [
-                    Text(
-                      'Developed By',
-                      style: TextStyle(
-                        fontSize: AppSizes.fontBody,
-                        fontWeight: FontWeight.w500,
-                        color: isDark
-                            ? AppColors.darkSecondary
-                            : AppColors.lightSecondary,
-                        letterSpacing: 0.3,
+                    Center(
+                      child: Text(
+                        'Sabiha Niaz',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: isDark
+                              ? AppColors.darkSecondary
+                              : AppColors.lightSecondary,
+                          letterSpacing: 0.5,
+                        ),
                       ),
                     ),
-                    const SizedBox(height: AppSizes.spacingXS),
-                    Text(
-                      'Sabiha Niaz',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w800,
-                        color: isDark
-                            ? AppColors.darkPrimary
-                            : AppColors.lightPrimary,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
+                    // const SizedBox(height: AppSizes.spacingXS),
+                    // Text(
+                    //   'Sabiha Niaz',
+                    //   style: TextStyle(
+                    //     fontSize: 20,
+                    //     fontWeight: FontWeight.w800,
+                    //     color: isDark
+                    //         ? AppColors.darkPrimary
+                    //         : AppColors.lightPrimary,
+                    //     letterSpacing: 0.5,
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
@@ -223,4 +223,3 @@ class _SplashScreenState extends State<SplashScreen>
     );
   }
 }
-
