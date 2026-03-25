@@ -78,12 +78,12 @@ class TrackerCard extends StatelessWidget {
           ),
           child: Stack(
             children: [
-              // Stylized left bar displaying the overall progress ratio (e.g., "5 / 10").
+              // Stylized left bar displaying the start date of the habit.
               Positioned(
                 top: 0,
                 bottom: 0,
                 left: 0,
-                child: _streakBar(context, entry),
+                child: _dateBar(context, entry),
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 42),
@@ -157,8 +157,10 @@ class TrackerCard extends StatelessWidget {
   }
 
   /// Builds the stylized left bar showing the start date of the habit.
-  Widget _streakBar(BuildContext context, Tracker entry) {
+  Widget _dateBar(BuildContext context, Tracker entry) {
     final barColor = _barColor(context);
+    final showYear = entry.startDate.year != DateTime.now().year;
+
     return Container(
       width: 42,
       decoration: BoxDecoration(
@@ -190,6 +192,16 @@ class TrackerCard extends StatelessWidget {
               letterSpacing: 0.5,
             ),
           ),
+          if (showYear)
+            Text(
+              '${entry.startDate.year}',
+              style: const TextStyle(
+                fontSize: 8,
+                fontWeight: FontWeight.w700,
+                color: Colors.white70,
+                letterSpacing: 0.5,
+              ),
+            ),
         ],
       ),
     );
