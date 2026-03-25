@@ -97,12 +97,12 @@ class TrackerScreenState extends State<TrackerScreen> {
                 (
                   TrackerSortOption.newest,
                   'Newest First',
-                  Icons.access_time_rounded,
+                  Icons.arrow_circle_down_sharp,
                 ),
                 (
                   TrackerSortOption.oldest,
                   'Oldest First',
-                  Icons.access_time_rounded,
+                  Icons.arrow_circle_up_sharp,
                 ),
                 (
                   TrackerSortOption.streak,
@@ -229,7 +229,7 @@ class TrackerScreenState extends State<TrackerScreen> {
               shape: BoxShape.circle,
             ),
             child: Icon(
-              Icons.repeat_rounded,
+              Icons.show_chart,
               size: 32,
               color: theme.textTheme.labelSmall?.color,
             ),

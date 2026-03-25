@@ -103,18 +103,12 @@ class _TaskList extends StatelessWidget {
   Widget _buildEmptyState(BuildContext context, _TaskListType type) {
     final theme = Theme.of(context);
     final (icon, message) = switch (type) {
-      _TaskListType.all => (
-        Icons.task_alt_rounded,
-        'No tasks yet.\nTap + to add one!',
-      ),
+      _TaskListType.all => (Icons.add_task, 'No tasks yet.\nTap + to add one!'),
       _TaskListType.active => (
         Icons.check_circle_outline_rounded,
         'No active tasks.\nAll done!',
       ),
-      _TaskListType.completed => (
-        Icons.history_rounded,
-        'No completed tasks yet.',
-      ),
+      _TaskListType.completed => (Icons.task, 'No completed tasks yet.'),
     };
 
     return Center(
