@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:taskmanager/providers/tracker_provider.dart';
+import 'package:taskmanager/services/notification_permission_helper.dart';
 import 'package:taskmanager/utils/app_theme.dart';
 import 'package:taskmanager/widgets/app_button.dart';
 import 'package:taskmanager/widgets/app_header.dart';
@@ -58,6 +59,13 @@ class _AddTrackerScreenState extends State<AddTrackerScreen> {
 
     setState(() => _isSaving = true);
 
+    await NotificationPermissionHelper.ensurePermission(
+      context,
+      shouldRequest: _reminderEnabled,
+      message:
+          'Allow notifications so your daily goal reminders arrive on time.',
+    );
+
     try {
       await context.read<TrackerProvider>().addEntry(
         title: _titleController.text.trim(),
@@ -73,7 +81,7 @@ class _AddTrackerScreenState extends State<AddTrackerScreen> {
         );
         Navigator.pop(context);
       }
-    } catch (e) {
+    } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -123,7 +131,6 @@ class _AddTrackerScreenState extends State<AddTrackerScreen> {
                   (v == null || v.trim().isEmpty) ? 'Title is required' : null,
             ),
             const SizedBox(height: AppSizes.spacingL),
-
             const AppLabel('DESCRIPTION'),
             const SizedBox(height: AppSizes.spacingS),
             TextFormField(
@@ -137,15 +144,10 @@ class _AddTrackerScreenState extends State<AddTrackerScreen> {
               ),
             ),
             const SizedBox(height: AppSizes.spacingL),
-
-            // Reminder Configuration Section
             const AppLabel('DAILY REMINDER'),
             const SizedBox(height: AppSizes.spacingS),
             _reminderConfigCard(context, theme, isDark),
-
             const SizedBox(height: AppSizes.spacingXL),
-
-            // Save Button
             AppButton(text: 'Save', isLoading: _isSaving, onPressed: _save),
           ],
         ),
