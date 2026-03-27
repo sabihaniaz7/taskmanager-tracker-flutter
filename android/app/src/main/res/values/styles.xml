@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-<string name="app_name">Task Manager</string>
+<string name="app_name">Trak</string>
 <string name="widget_description">Shows your latest task at a glance</string>
  <string name="tracker_widget_description">Shows your daily habit trackers</string>   
     <!-- Theme applied to the Android Window while the process is starting when the OS's Dark Mode setting is off -->
