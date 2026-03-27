@@ -32,44 +32,63 @@ class NotificationService {
   /// Public getter for the permission status.
   bool get permissionGranted => _permissionGranted;
 
+  /// Tracks whether the native notification plugin initialized successfully.
+  bool _initialized = false;
+
   /// Initializes the notification service.
   ///
   /// Should be called exactly once from the `main()` function. Sets up timezones,
   /// plugin settings, and restores previously saved permission states.
   Future<void> init() async {
-    // Initialize the full timezone database.
     tz.initializeTimeZones();
 
-    // Set the local timezone for accurate scheduling across DST transitions.
-    final deviceTimeZone = await FlutterTimezone.getLocalTimezone();
-    tz.setLocalLocation(tz.getLocation(deviceTimeZone.identifier));
+    await _configureTimezone();
 
-    // Configure low-level initialization settings for Android and iOS.
-    const android = AndroidInitializationSettings('@drawable/ic_notification');
-    const ios = DarwinInitializationSettings(
-      requestAlertPermission:
-          false, // We ask for permission contextually later.
-      requestBadgePermission: false,
-      requestSoundPermission: false,
-    );
+    try {
+      // Configure low-level initialization settings for Android and iOS.
+      const android = AndroidInitializationSettings('@drawable/ic_notification');
+      const ios = DarwinInitializationSettings(
+        requestAlertPermission:
+            false, // We ask for permission contextually later.
+        requestBadgePermission: false,
+        requestSoundPermission: false,
+      );
 
-    await _plugin.initialize(
-      settings: const InitializationSettings(android: android, iOS: ios),
-    );
+      await _plugin.initialize(
+        settings: const InitializationSettings(android: android, iOS: ios),
+      );
 
-    // Restore persisted permission state.
-    final prefs = await SharedPreferences.getInstance();
-    _permissionGranted = prefs.getBool(_permKey) ?? false;
+      // Restore persisted permission state.
+      final prefs = await SharedPreferences.getInstance();
+      _permissionGranted = prefs.getBool(_permKey) ?? false;
 
-    // Verify actual permission state on Android (API 33+).
-    final androidImpl = _plugin
-        .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin
-        >();
-    if (androidImpl != null) {
-      final granted = await androidImpl.areNotificationsEnabled() ?? false;
-      _permissionGranted = granted;
-      await prefs.setBool(_permKey, granted);
+      // Verify actual permission state on Android (API 33+).
+      final androidImpl = _plugin
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >();
+      if (androidImpl != null) {
+        final granted = await androidImpl.areNotificationsEnabled() ?? false;
+        _permissionGranted = granted;
+        await prefs.setBool(_permKey, granted);
+      }
+
+      _initialized = true;
+    } catch (_) {
+      _initialized = false;
+    }
+  }
+
+  Future<void> _configureTimezone() async {
+    try {
+      final deviceTimeZone = await FlutterTimezone.getLocalTimezone();
+      final identifier = deviceTimeZone.identifier;
+      final resolved = identifier.isEmpty || identifier == 'Etc/Unknown'
+          ? 'UTC'
+          : identifier;
+      tz.setLocalLocation(tz.getLocation(resolved));
+    } catch (_) {
+      tz.setLocalLocation(tz.getLocation('UTC'));
     }
   }
 
@@ -78,6 +97,7 @@ class NotificationService {
   /// Should be called at a contextual moment, like when creating a task.
   /// Returns `true` if permission was granted.
   Future<bool> requestPermission() async {
+    if (!_initialized) return false;
     bool granted = false;
 
     // Request permissions on Android.
@@ -122,6 +142,7 @@ class NotificationService {
   /// Includes an immediate creation confirmation and various reminders
   /// based on the task's [ReminderMode].
   Future<void> scheduleTaskNotifications(Task task) async {
+    if (!_initialized) return;
     // Clear existing notifications for this task before rescheduling.
     await cancelTaskNotifications(task);
 
@@ -285,6 +306,7 @@ class NotificationService {
 
   /// Cancels all notifications scheduled for a specific [task].
   Future<void> cancelTaskNotifications(Task task) async {
+    if (!_initialized) return;
     await _plugin.cancel(id: task.notificationStartId);
     // Cancel any daily reminder IDs that might have been queued.
     for (int i = 0; i <= 30; i++) {
@@ -301,6 +323,7 @@ class NotificationService {
   /// Includes a 3-second creation confirmation and up to 30 upcoming
   /// daily reminders at the user's preferred time.
   Future<void> scheduleTrackerNotifications(dynamic tracker) async {
+    if (!_initialized) return;
     await cancelTrackerNotifications(tracker);
     if (!_permissionGranted) return;
 
@@ -354,6 +377,7 @@ class NotificationService {
 
   /// Cancels all scheduled notifications for a specific [tracker].
   Future<void> cancelTrackerNotifications(dynamic tracker) async {
+    if (!_initialized) return;
     final id = tracker.notificationId as int;
     await _plugin.cancel(id: id);
     for (int i = 1; i <= 30; i++) {
