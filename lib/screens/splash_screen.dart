@@ -188,21 +188,31 @@ class _SplashScreenState extends State<SplashScreen>
                 opacity: _creditFadeAnimation.value,
                 child: Column(
                   children: [
-                    Center(
-                      child: Text(
-                        'Sabiha Niaz',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: isDark
-                              ? AppColors.darkSecondary
-                              : AppColors.lightSecondary,
-                          letterSpacing: 0.5,
-                        ),
+                    const SizedBox(height: AppSizes.spacingXS),
+                    Text(
+                      'By',
+                      style: TextStyle(
+                        fontSize: AppSizes.fontBody,
+                        fontWeight: FontWeight.w500,
+                        color: isDark
+                            ? AppColors.darkSecondary
+                            : AppColors.lightSecondary,
+                        letterSpacing: 0.3,
                       ),
                     ),
-                    // const SizedBox(height: AppSizes.spacingXS),
-                    // Text(
+
+                    Text(
+                      'Sabiha Niaz',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        color: isDark
+                            ? AppColors.darkPrimary
+                            : AppColors.lightPrimary,
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+
                     //   'Sabiha Niaz',
                     //   style: TextStyle(
                     //     fontSize: 20,

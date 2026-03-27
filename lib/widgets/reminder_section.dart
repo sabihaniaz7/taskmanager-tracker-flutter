@@ -84,22 +84,28 @@ class _ReminderSectionState extends State<ReminderSection>
     super.didUpdateWidget(old);
     // Reset to a compatible mode if the task duration type changes.
     if (old.isSingleDay != widget.isSingleDay) {
-      _resetModeForDuration();
+      final changed = _resetModeForDuration();
+      if (changed) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _emit();
+        });
+      }
     }
   }
 
   /// Ensures the selected mode remains valid for the current task duration.
-  void _resetModeForDuration() {
+  bool _resetModeForDuration() {
     if (widget.isSingleDay &&
         (_mode == ReminderMode.onceDayBefore ||
             _mode == ReminderMode.daily ||
             _mode == ReminderMode.customDays)) {
-      setState(() => _mode = ReminderMode.onDueDate);
-      _emit();
+      _mode = ReminderMode.onDueDate;
+      return true;
     } else if (!widget.isSingleDay && _mode == ReminderMode.onDueDate) {
-      setState(() => _mode = ReminderMode.onceDayBefore);
-      _emit();
+      _mode = ReminderMode.onceDayBefore;
+      return true;
     }
+    return false;
   }
 
   @override

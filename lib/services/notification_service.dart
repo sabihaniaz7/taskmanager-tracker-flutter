@@ -45,7 +45,7 @@ class NotificationService {
     tz.setLocalLocation(tz.getLocation(deviceTimeZone.identifier));
 
     // Configure low-level initialization settings for Android and iOS.
-    const android = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const android = AndroidInitializationSettings('@drawable/ic_notification');
     const ios = DarwinInitializationSettings(
       requestAlertPermission:
           false, // We ask for permission contextually later.
@@ -272,7 +272,7 @@ class NotificationService {
             channelDescription: 'Task & Goals reminders and notifications',
             importance: Importance.high,
             priority: Priority.high,
-            icon: '@mipmap/ic_launcher',
+            icon: '@drawable/ic_notification',
           ),
           iOS: DarwinNotificationDetails(),
         ),

@@ -119,7 +119,7 @@ class TrackerCard extends StatelessWidget {
                         Text(
                           entry.description,
                           style: theme.textTheme.bodyMedium?.copyWith(
-                            color: AppColors.subtextColor(context),
+                            color: Colors.grey[600],
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,

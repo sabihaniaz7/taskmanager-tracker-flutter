@@ -100,12 +100,20 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isSaving = true);
 
+    final normalizedReminderMode = _isSingleDay
+        ? (_reminderMode == ReminderMode.none
+              ? ReminderMode.none
+              : ReminderMode.onDueDate)
+        : (_reminderMode == ReminderMode.onDueDate
+              ? ReminderMode.onceDayBefore
+              : _reminderMode);
+
     final updated = widget.task.copyWith(
       title: _titleController.text.trim(),
       description: _descriptionController.text.trim(),
       startDate: _startDate,
       endDate: _endDate,
-      reminderMode: _reminderMode,
+      reminderMode: normalizedReminderMode,
       reminderHour: _reminderTime.hour,
       reminderMinute: _reminderTime.minute,
       customDaysBefore: _customDays,
@@ -149,7 +157,12 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(AppSizes.spacingXL),
+          padding: EdgeInsets.fromLTRB(
+            AppSizes.spacingXL,
+            AppSizes.spacingXL,
+            AppSizes.spacingXL,
+            AppSizes.spacingXL + MediaQuery.of(context).padding.bottom + 16,
+          ),
           children: [
             const AppLabel('TASK TITLE *'),
             const SizedBox(height: AppSizes.spacingS),
