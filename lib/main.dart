@@ -13,11 +13,15 @@ void main() async {
   // Ensure that widget binding is initialized before service initialization.
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize notification service.
-  await NotificationService().init();
+  // Do not let plugin startup failures block the first frame in release.
+  try {
+    await NotificationService().init();
+  } catch (_) {}
 
-  // Load saved theme mode from storage.
-  final saved = await ThemeModeNotifier.load();
+  ThemeMode saved = ThemeMode.system;
+  try {
+    saved = await ThemeModeNotifier.load();
+  } catch (_) {}
 
   runApp(
     MultiProvider(
