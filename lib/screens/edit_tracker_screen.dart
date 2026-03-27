@@ -108,7 +108,12 @@ class _EditTrackerScreenState extends State<EditTrackerScreen> {
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(AppSizes.spacingXL),
+          padding: EdgeInsets.fromLTRB(
+            AppSizes.spacingXL,
+            AppSizes.spacingXL,
+            AppSizes.spacingXL,
+            AppSizes.spacingXL + MediaQuery.of(context).padding.bottom + 16,
+          ),
           children: [
             const SizedBox(height: AppSizes.spacingS),
             const AppLabel('TITLE *'),

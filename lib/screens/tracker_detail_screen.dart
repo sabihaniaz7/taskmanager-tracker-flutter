@@ -509,18 +509,6 @@ class _TrackerDetailScreenState extends State<TrackerDetailScreen> {
                                 entry.id,
                                 date,
                               );
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      entry.isDayOn(date)
-                                          ? 'Goal accomplished for today!'
-                                          : 'Entry removed',
-                                    ),
-                                    duration: const Duration(seconds: 1),
-                                  ),
-                                );
-                              }
                             } catch (e) {
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(

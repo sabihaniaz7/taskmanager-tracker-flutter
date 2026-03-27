@@ -120,9 +120,7 @@ class TaskCard extends StatelessWidget {
                           Text(
                             task.description,
                             style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(
-                                  color: AppColors.subtextColor(context),
-                                ),
+                                ?.copyWith(color: Colors.grey[600]),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
