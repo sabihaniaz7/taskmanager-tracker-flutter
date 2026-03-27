@@ -35,17 +35,35 @@ class NotificationService {
   /// Tracks whether the native notification plugin initialized successfully.
   bool _initialized = false;
 
+  /// Ensures the timezone database has a safe local fallback.
+  bool _timezoneConfigured = false;
+
   /// Initializes the notification service.
   ///
   /// Should be called exactly once from the `main()` function. Sets up timezones,
   /// plugin settings, and restores previously saved permission states.
   Future<void> init() async {
-    tz.initializeTimeZones();
-
     await _configureTimezone();
+    await _initializePlugin();
+  }
 
+  Future<void> _configureTimezone() async {
+    tz.initializeTimeZones();
     try {
-      // Configure low-level initialization settings for Android and iOS.
+      final deviceTimeZone = await FlutterTimezone.getLocalTimezone();
+      final identifier = deviceTimeZone.identifier;
+      final resolved = identifier.isEmpty || identifier == 'Etc/Unknown'
+          ? 'UTC'
+          : identifier;
+      tz.setLocalLocation(tz.getLocation(resolved));
+    } catch (_) {
+      tz.setLocalLocation(tz.getLocation('UTC'));
+    }
+    _timezoneConfigured = true;
+  }
+
+  Future<void> _initializePlugin() async {
+    try {
       const android = AndroidInitializationSettings('@drawable/ic_notification');
       const ios = DarwinInitializationSettings(
         requestAlertPermission:
@@ -57,12 +75,16 @@ class NotificationService {
       await _plugin.initialize(
         settings: const InitializationSettings(android: android, iOS: ios),
       );
+      _initialized = true;
+    } catch (_) {
+      _initialized = false;
+      return;
+    }
 
-      // Restore persisted permission state.
+    try {
       final prefs = await SharedPreferences.getInstance();
       _permissionGranted = prefs.getBool(_permKey) ?? false;
 
-      // Verify actual permission state on Android (API 33+).
       final androidImpl = _plugin
           .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin
@@ -72,24 +94,19 @@ class NotificationService {
         _permissionGranted = granted;
         await prefs.setBool(_permKey, granted);
       }
-
-      _initialized = true;
     } catch (_) {
-      _initialized = false;
+      // Leave the plugin usable even if restoring permission state fails.
     }
   }
 
-  Future<void> _configureTimezone() async {
-    try {
-      final deviceTimeZone = await FlutterTimezone.getLocalTimezone();
-      final identifier = deviceTimeZone.identifier;
-      final resolved = identifier.isEmpty || identifier == 'Etc/Unknown'
-          ? 'UTC'
-          : identifier;
-      tz.setLocalLocation(tz.getLocation(resolved));
-    } catch (_) {
-      tz.setLocalLocation(tz.getLocation('UTC'));
+  Future<bool> _ensureReady() async {
+    if (!_timezoneConfigured) {
+      await _configureTimezone();
     }
+    if (!_initialized) {
+      await _initializePlugin();
+    }
+    return _initialized;
   }
 
   /// Explicitly requests notification permissions from the user.
@@ -97,7 +114,7 @@ class NotificationService {
   /// Should be called at a contextual moment, like when creating a task.
   /// Returns `true` if permission was granted.
   Future<bool> requestPermission() async {
-    if (!_initialized) return false;
+    if (!await _ensureReady()) return false;
     bool granted = false;
 
     // Request permissions on Android.
@@ -142,7 +159,7 @@ class NotificationService {
   /// Includes an immediate creation confirmation and various reminders
   /// based on the task's [ReminderMode].
   Future<void> scheduleTaskNotifications(Task task) async {
-    if (!_initialized) return;
+    if (!await _ensureReady()) return;
     // Clear existing notifications for this task before rescheduling.
     await cancelTaskNotifications(task);
 
@@ -323,7 +340,7 @@ class NotificationService {
   /// Includes a 3-second creation confirmation and up to 30 upcoming
   /// daily reminders at the user's preferred time.
   Future<void> scheduleTrackerNotifications(dynamic tracker) async {
-    if (!_initialized) return;
+    if (!await _ensureReady()) return;
     await cancelTrackerNotifications(tracker);
     if (!_permissionGranted) return;
 
