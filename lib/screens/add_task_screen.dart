@@ -85,9 +85,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       message: 'Allow notifications so your task reminders arrive on time.',
     );
 
-    try {
-      if (!mounted) return;
+    if (!mounted) return;
 
+    try {
       await context.read<TaskProvider>().addTask(
         title: _titleController.text.trim(),
         description: _descriptionController.text.trim(),

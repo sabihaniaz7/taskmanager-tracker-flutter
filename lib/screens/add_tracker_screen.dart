@@ -66,6 +66,8 @@ class _AddTrackerScreenState extends State<AddTrackerScreen> {
           'Allow notifications so your daily goal reminders arrive on time.',
     );
 
+    if (!mounted) return;
+
     try {
       await context.read<TrackerProvider>().addEntry(
         title: _titleController.text.trim(),
