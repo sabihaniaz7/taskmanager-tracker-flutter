@@ -36,7 +36,7 @@ void main() async {
   );
 }
 
-/// The root widget of the Task Manager application.
+/// The root widget of the Trak application.
 ///
 /// Configures the overall application theme, title, and initial route.
 class TaskManagerApp extends StatelessWidget {
@@ -49,7 +49,7 @@ class TaskManagerApp extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Task Manager',
+      title: 'Trak',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeNotifier.mode,
