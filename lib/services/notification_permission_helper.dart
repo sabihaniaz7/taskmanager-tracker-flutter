@@ -3,20 +3,31 @@ import 'package:taskmanager/services/notification_service.dart';
 import 'package:taskmanager/utils/app_theme.dart';
 
 class NotificationPermissionHelper {
-  static Future<void> ensurePermission(
+  static Future<bool> ensurePermission(
     BuildContext context, {
     required bool shouldRequest,
     required String message,
   }) async {
-    if (!shouldRequest) return;
+    // Always return true — saving should never be blocked by notification permission.
+    // We just try to get permission silently in the background.
+    if (!shouldRequest) return true;
 
     final notifService = NotificationService();
-    if (notifService.permissionGranted) return;
+    if (notifService.permissionGranted) return true;
 
     final allow = await showRationale(context, message: message);
-    if (allow == true) {
-      await notifService.requestPermission();
+    if (allow != true) return true; // user skipped — still save
+    if (!context.mounted) return true;
+
+    final granted = await notifService.requestPermission();
+    if (granted) return true;
+    if (!context.mounted) return true;
+    // Show settings prompt but don't block saving either way
+    final openSettings = await showSettingsPrompt(context);
+    if (openSettings == true) {
+      await notifService.openNotificationSettings();
     }
+    return true; // always let the save proceed
   }
 
   static Future<bool?> showRationale(
@@ -99,6 +110,36 @@ class NotificationPermissionHelper {
                 fontWeight: FontWeight.w700,
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static Future<bool?> showSettingsPrompt(BuildContext context) {
+    final theme = Theme.of(context);
+    return showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppSizes.radiusCard),
+        ),
+        title: Text(
+          'Turn On Notifications',
+          style: theme.textTheme.titleMedium?.copyWith(fontSize: 18),
+        ),
+        content: Text(
+          'Android did not grant notification access. Open app settings and enable notifications, then save again.',
+          style: theme.textTheme.bodyMedium?.copyWith(height: 1.6),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Not Now'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Open Settings'),
           ),
         ],
       ),

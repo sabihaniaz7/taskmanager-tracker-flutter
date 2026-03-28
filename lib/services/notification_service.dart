@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,6 +23,10 @@ class NotificationService {
   /// Plugin instance for interacting with native notification systems.
   final FlutterLocalNotificationsPlugin _plugin =
       FlutterLocalNotificationsPlugin();
+
+  static const MethodChannel _platformChannel = MethodChannel(
+    'com.example.taskmanager/widget',
+  );
 
   /// Key for persisting notification permission status.
   static const _permKey = 'notif_permission_granted';
@@ -64,7 +69,9 @@ class NotificationService {
 
   Future<void> _initializePlugin() async {
     try {
-      const android = AndroidInitializationSettings('@drawable/ic_notification');
+      const android = AndroidInitializationSettings(
+        '@drawable/ic_notification',
+      );
       const ios = DarwinInitializationSettings(
         requestAlertPermission:
             false, // We ask for permission contextually later.
@@ -128,7 +135,11 @@ class NotificationService {
       granted = result ?? false;
 
       // Request exact alarm permission (Android 12+) for precise notification timing.
-      await androidImplementation.requestExactAlarmsPermission();
+      try {
+        await androidImplementation.requestExactAlarmsPermission();
+      } catch (_) {
+        // Ignore if permission is already granted or not applicable.
+      }
     }
 
     // Request permissions on iOS.
@@ -152,6 +163,12 @@ class NotificationService {
     await prefs.setBool(_permKey, granted);
 
     return granted;
+  }
+
+  Future<void> openNotificationSettings() async {
+    try {
+      await _platformChannel.invokeMethod('openNotificationSettings');
+    } catch (_) {}
   }
 
   /// Schedules all relevant notifications for a specific [task].
