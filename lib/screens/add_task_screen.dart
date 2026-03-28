@@ -108,7 +108,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to save task. Please try again.')),
+          const SnackBar(
+            content: Text('Failed to save task. Please try again.'),
+          ),
         );
       }
     } finally {

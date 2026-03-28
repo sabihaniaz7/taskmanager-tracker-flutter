@@ -36,6 +36,16 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
+            // ── Disable minification & shrinking ──
+            // Prevents R8 from stripping flutter_local_notifications
+            // classes in release mode, which caused silent notification failures.
+            isMinifyEnabled = false
+            isShrinkResources = false
+            // ProGuard rules ready if you ever enable minify in future
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
 }
