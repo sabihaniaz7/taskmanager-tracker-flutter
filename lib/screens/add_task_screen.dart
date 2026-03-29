@@ -40,6 +40,21 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       _startDate.month == _endDate.month &&
       _startDate.day == _endDate.day;
 
+  /// The maximum number of custom days allowed (distance from Start Date/Today to End Date).
+  int get _maxCustomDays {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    
+    // The reminder cannot be before today, AND it must be within the task duration.
+    final effectiveStart = _startDate.isBefore(today) ? today : _startDate;
+    
+    final start = DateTime(effectiveStart.year, effectiveStart.month, effectiveStart.day);
+    final end = DateTime(_endDate.year, _endDate.month, _endDate.day);
+    
+    final diff = end.difference(start).inDays;
+    return diff > 0 ? diff : 0;
+  }
+
   @override
   void dispose() {
     _titleController.dispose();
@@ -196,6 +211,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
             const SizedBox(height: AppSizes.spacingS),
             ReminderSection(
               isSingleDay: _isSingleDay,
+              maxCustomDays: _maxCustomDays,
               initialMode: _reminderMode,
               initialTime: _reminderTime,
               initialCustomDays: _customDays,
