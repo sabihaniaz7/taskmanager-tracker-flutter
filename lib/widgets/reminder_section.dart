@@ -21,6 +21,9 @@ class ReminderSection extends StatefulWidget {
   /// The initial value for custom lead days (e.g., "X days before").
   final int initialCustomDays;
 
+  /// The maximum number of custom lead days allowed (e.g., task duration).
+  final int maxCustomDays;
+
   /// Callback triggered whenever any part of the configuration changes.
   final ValueChanged<ReminderConfig> onChanged;
 
@@ -31,6 +34,7 @@ class ReminderSection extends StatefulWidget {
     this.initialMode = ReminderMode.none,
     this.initialTime = const TimeOfDay(hour: 9, minute: 0),
     this.initialCustomDays = 1,
+    this.maxCustomDays = 30,
   });
 
   @override
@@ -82,6 +86,15 @@ class _ReminderSectionState extends State<ReminderSection>
   @override
   void didUpdateWidget(ReminderSection old) {
     super.didUpdateWidget(old);
+
+    // Clamp custom days if max decreased.
+    if (widget.maxCustomDays < _customDays) {
+      _customDays = widget.maxCustomDays > 0 ? widget.maxCustomDays : 1;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _emit();
+      });
+    }
+
     // Reset to a compatible mode if the task duration type changes.
     if (old.isSingleDay != widget.isSingleDay) {
       final changed = _resetModeForDuration();
@@ -402,12 +415,13 @@ class _ReminderSectionState extends State<ReminderSection>
         _stepperButton(
           icon: Icons.add_rounded,
           onTap: () {
-            if (_customDays < 30) {
+            if (_customDays < widget.maxCustomDays) {
               setState(() => _customDays++);
               _emit();
             }
           },
           theme: theme,
+          disabled: _customDays >= widget.maxCustomDays,
         ),
       ],
     );
@@ -417,17 +431,27 @@ class _ReminderSectionState extends State<ReminderSection>
     required IconData icon,
     required VoidCallback onTap,
     required ThemeData theme,
+    bool disabled = false,
   }) {
     return GestureDetector(
-      onTap: onTap,
-      child: Container(
+      onTap: disabled ? null : onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
         width: 34,
         height: 34,
         decoration: BoxDecoration(
-          color: theme.dividerColor.withValues(alpha: 0.5),
+          color: theme.dividerColor.withValues(
+            alpha: disabled ? 0.2 : 0.5,
+          ),
           borderRadius: BorderRadius.circular(AppSizes.radiusSmall),
         ),
-        child: Icon(icon, size: 18, color: theme.colorScheme.primary),
+        child: Icon(
+          icon,
+          size: 18,
+          color: theme.colorScheme.primary.withValues(
+            alpha: disabled ? 0.3 : 1.0,
+          ),
+        ),
       ),
     );
   }
