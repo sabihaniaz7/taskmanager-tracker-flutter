@@ -13,14 +13,23 @@ Built with `provider` for state management, local persistence, smart reminders, 
 
 ## Preview
 
-<!-- markdownlint-disable MD033 -->
-| | |
+| **Splash Screen (Dark)** | **Splash Screen (Light)** |
 | :---: | :---: |
-| **Add Task (Dark)** | **Add Task (Light)** |
-| <img src="images/addDark.png" width="270" alt="Add Task Dark Mode"> | <img src="images/addLight.png" width="270" alt="Add Task Light Mode"> |
-| **Reminder System** | |
-| <img src="images/reminder.png" width="270" alt="Reminder System"> | |
-<!-- markdownlint-enable MD033 -->
+| ![Splash Screen](images/splashScreen_dark.png) | ![Splash Screen](images/splashScreen_light.png) |
+| **Task Screen (Dark)** | **Task Screen (Light)** |
+| ![Task Screen](images/tasks_dark.png) | ![Task Screen](images/tasks_light.png) |
+| **Task Detail Screen** | **Task Detail Screen** |
+| ![Task Detail Screen](images/taskDetailScreen_dark.png) | ![Task Detail Screen](images/taskDetailScreen2_dark.png) |
+| **Add Task** | **Add Task** |
+| ![Add Task Dark Mode](images/addDark.png) | ![Add Task Light Mode](images/addLight.png) |
+| **Tracker Screen** | **Tracker Screen** |
+| ![Tracker Screen](images/tracker_dark.png) | ![Tracker Screen](images/tracker_light.png) |
+| **Tracker Detail Screen** | **Tracker Detail Screen** |
+| ![Tracker Detail Screen](images/trackerDetailScreen_dark.png) | ![Tracker Detail Screen](images/trackerDetailScreen_dark2.png) |
+| **Reminder System** | **Notification** |
+| ![Reminder System](images/reminder.png) | ![Notification](images\notificaton.png) |
+
+>Note: Preview images may appear with varying sizes due to Markdown rendering behavior on GitHub.
 
 ## Features
 
