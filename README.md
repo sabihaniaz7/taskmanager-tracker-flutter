@@ -27,7 +27,7 @@ Built with `provider` for state management, local persistence, smart reminders, 
 | **Tracker Detail Screen** | **Tracker Detail Screen** |
 | ![Tracker Detail Screen](images/trackerDetailScreen_dark.png) | ![Tracker Detail Screen](images/trackerDetailScreen_dark2.png) |
 | **Reminder System** | **Notification** |
-| ![Reminder System](images/reminder.png) | ![Notification](images\notificaton.png) |
+| ![Reminder System](images/reminder.png) | ![Notification](images/notification.png) |
 
 >Note: Preview images may appear with varying sizes due to Markdown rendering behavior on GitHub.
 
