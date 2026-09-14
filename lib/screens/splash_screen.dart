@@ -90,52 +90,11 @@ class _SplashScreenState extends State<SplashScreen>
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final bg = isDark ? AppColors.darkBg : AppColors.lightBg;
-    final primary = Theme.of(context).colorScheme.primary;
 
     return Scaffold(
       backgroundColor: bg,
       body: Stack(
         children: [
-          // ── Subtle background glow (Top-Left) ──────────────────
-          Positioned(
-            top: -100,
-            left: -80,
-            child: AnimatedBuilder(
-              animation: _fadeAnimation,
-              builder: (_, _) => Opacity(
-                opacity: _fadeAnimation.value * 0.15,
-                child: Container(
-                  width: 400,
-                  height: 400,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: primary,
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          // ── Subtle background glow (Bottom-Right) ──────────────────
-          Positioned(
-            bottom: -120,
-            right: -60,
-            child: AnimatedBuilder(
-              animation: _fadeAnimation,
-              builder: (_, _) => Opacity(
-                opacity: _fadeAnimation.value * 0.1,
-                child: Container(
-                  width: 300,
-                  height: 300,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: primary,
-                  ),
-                ),
-              ),
-            ),
-          ),
-
           // ── Center: App Branding ───────────────────────────────
           Center(
             child: AnimatedBuilder(
@@ -212,17 +171,6 @@ class _SplashScreenState extends State<SplashScreen>
                         letterSpacing: 0.3,
                       ),
                     ),
-
-                    //   'Sabiha Niaz',
-                    //   style: TextStyle(
-                    //     fontSize: 20,
-                    //     fontWeight: FontWeight.w800,
-                    //     color: isDark
-                    //         ? AppColors.darkPrimary
-                    //         : AppColors.lightPrimary,
-                    //     letterSpacing: 0.5,
-                    //   ),
-                    // ),
                   ],
                 ),
               ),
