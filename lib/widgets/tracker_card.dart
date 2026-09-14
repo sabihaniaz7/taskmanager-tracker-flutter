@@ -17,24 +17,17 @@ class TrackerCard extends StatelessWidget {
 
   const TrackerCard({super.key, required this.trackerEntry});
 
-  /// Calculates the background color for the card based on the tracker's [colorIndex].
-  Color _cardColor(BuildContext context) {
-    return Color(
-      AppColors.cardPalette[trackerEntry.colorIndex %
-          AppColors.cardPalette.length],
-    );
-  }
+  /// The card's surface color — always theme-driven, never the accent palette.
+  Color _cardColor(BuildContext context) => AppColors.cardSurface(context);
 
-  /// Calculates a darker accent color for the left streak bar and status indicators.
-  Color _barColor(BuildContext context) {
-    final base = _cardColor(context);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final hsl = HSLColor.fromColor(base);
-    return hsl
-        .withLightness(isDark ? 0.46 : 0.50)
-        .withSaturation(0.68)
-        .toColor();
-  }
+  /// The accent color for this tracker's date bar, streak badge, and days —
+  /// used only as a small tint/text color, never as the card background.
+  Color _barColor(BuildContext context) =>
+      AppColors.accentFor(context, trackerEntry.colorIndex).text;
+
+  /// Soft tint of the accent color, for the date bar's fill.
+  Color _barTint(BuildContext context) =>
+      AppColors.accentFor(context, trackerEntry.colorIndex).tint;
 
   @override
   Widget build(BuildContext context) {
@@ -99,10 +92,13 @@ class TrackerCard extends StatelessWidget {
                             child: Text(
                               entry.title,
                               style: theme.textTheme.titleMedium?.copyWith(
-                                color: AppColors.lightPrimary,
                                 decoration: entry.isArchived
                                     ? TextDecoration.lineThrough
                                     : null,
+                                color: entry.isArchived
+                                    ? AppColors.subtextColor(context)
+                                    : null,
+                                fontSize: 14,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -158,13 +154,14 @@ class TrackerCard extends StatelessWidget {
 
   /// Builds the stylized left bar showing the start date of the habit.
   Widget _dateBar(BuildContext context, Tracker entry) {
-    final barColor = _barColor(context);
+    final tint = _barTint(context);
+    final accent = _barColor(context);
     final showYear = entry.startDate.year != DateTime.now().year;
 
     return Container(
       width: 42,
       decoration: BoxDecoration(
-        color: barColor,
+        color: tint,
         borderRadius: const BorderRadius.horizontal(
           left: Radius.circular(AppSizes.radiusCard),
         ),
@@ -175,30 +172,30 @@ class TrackerCard extends StatelessWidget {
         children: [
           Text(
             '${entry.startDate.day}',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w900,
-              color: Colors.white,
+              color: accent,
               height: 1.1,
             ),
             textAlign: TextAlign.center,
           ),
           Text(
             _monthAbbr(entry.startDate.month).toUpperCase(),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 8,
               fontWeight: FontWeight.w700,
-              color: Colors.white70,
+              color: accent.withValues(alpha: 0.75),
               letterSpacing: 0.5,
             ),
           ),
           if (showYear)
             Text(
               '${entry.startDate.year}',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 8,
                 fontWeight: FontWeight.w700,
-                color: Colors.white70,
+                color: accent.withValues(alpha: 0.75),
                 letterSpacing: 0.5,
               ),
             ),
@@ -265,8 +262,8 @@ class TrackerCard extends StatelessWidget {
                       ),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  height: 26,
-                  width: 26,
+                  height: 20,
+                  width: 20,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: isBeforeStart || isFuture
@@ -287,7 +284,7 @@ class TrackerCard extends StatelessWidget {
                           child: Text(
                             '${date.day}',
                             style: TextStyle(
-                              fontSize: 11,
+                              fontSize: 9,
                               fontWeight: FontWeight.w800,
                               color: done ? Colors.white : doneColor,
                             ),
@@ -355,6 +352,7 @@ class TrackerCard extends StatelessWidget {
           ),
           const SizedBox(width: 3),
           Text('🔥'),
+          // Icon(Icons.local_fire_department_rounded, size: 13, color: barColor),
         ],
       ),
     );

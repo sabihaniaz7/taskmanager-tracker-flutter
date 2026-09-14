@@ -13,6 +13,34 @@ class AppColors {
     0xFFEAE8FF,
     0xFFDDF5E8,
   ];
+  static Color cardSurface(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return isDark ? const Color(0xFF1A1D24) : Colors.white;
+  }
+
+  /// Accent hues assigned by `colorIndex`, replacing the old pastel
+  /// `cardPalette`. Each entry is [lightModeSolid, darkModeSolid] — pick
+  /// mid-strength colors here; `accentFor` derives the soft tint from them.
+  static const List<List<Color>> accentPalette = [
+    [Color(0xFF185FA5), Color(0xFF378ADD)], // blue
+    [Color(0xFF0F6E56), Color(0xFF5DCAA5)], // teal
+    [Color(0xFF854F0B), Color(0xFFEF9F27)], // amber
+    [Color(0xFF993C1D), Color(0xFFF0997B)], // coral
+    [Color(0xFF534AB7), Color(0xFF7F77DD)], // purple
+    [Color(0xFF993556), Color(0xFFD4537E)], // pink
+    [Color(0xFF3B6D11), Color(0xFF97C459)], // green
+  ];
+
+  /// Returns the accent pair for [index] (usually a task/tracker's
+  /// `colorIndex`): `tint` for soft fills (date bar, missed-day circles),
+  /// `text` for the saturated color itself (icons, digits, badge text,
+  /// "today"/streak states). Never use `text` as a large fill.
+  static ({Color tint, Color text}) accentFor(BuildContext context, int index) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final pair = accentPalette[index % accentPalette.length];
+    final solid = isDark ? pair[1] : pair[0];
+    return (tint: solid.withValues(alpha: isDark ? 0.14 : 0.22), text: solid);
+  }
 
   // Light Mode Colors
   static const lightBg = Color(0xFFF2F3F7);

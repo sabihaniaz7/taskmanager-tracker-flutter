@@ -21,23 +21,14 @@ class TaskDetailScreen extends StatelessWidget {
 
   const TaskDetailScreen({super.key, required this.task});
 
-  /// Calculates a darker accent color for status indicators based on the task's palette.
-  Color _barColor(BuildContext context, Task task) {
-    final base = Color(
-      AppColors.cardPalette[task.colorIndex % AppColors.cardPalette.length],
-    );
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final hsl = HSLColor.fromColor(base);
-    return hsl
-        .withLightness(isDark ? 0.46 : 0.50)
-        .withSaturation(0.68)
-        .toColor();
-  }
+  /// Accent color for status indicators, from the same palette the cards use.
+  Color _barColor(BuildContext context, Task task) =>
+      AppColors.accentFor(context, task.colorIndex).text;
 
   /// Returns a consistent subtext color for the current theme.
   Color _subtextColor(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    return isDark ? AppColors.darkSubtext : AppColors.lightSubtext;
+    return isDark ? Colors.grey[400]! : Colors.grey[700]!;
   }
 
   /// Generates a human-friendly label describing the task's reminder settings.
@@ -464,12 +455,14 @@ class TaskDetailScreen extends StatelessWidget {
               icon: Icons.flag_rounded,
               label: 'Status',
               value: statusText,
-              barColor: isOverdue ? AppColors.danger : theme.colorScheme.primary,
+              barColor: isOverdue
+                  ? AppColors.danger
+                  : theme.colorScheme.primary,
               valueColor: isOverdue
                   ? AppColors.danger
                   : t.isCompleted
-                      ? barColor
-                      : null,
+                  ? barColor
+                  : null,
             ),
           ],
         ],

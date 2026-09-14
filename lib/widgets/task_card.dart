@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:taskmanager/screens/task_detail_screen.dart';
+import 'package:taskmanager/widgets/task_quick_sheet.dart';
 import '../models/task.dart';
 import '../providers/task_provider.dart';
 import '../utils/app_theme.dart';
@@ -18,23 +19,19 @@ class TaskCard extends StatelessWidget {
 
   const TaskCard({super.key, required this.task});
 
-  /// Calculates the background color for the card based on the task's [colorIndex].
+  /// The card's surface color — always theme-driven, never the accent palette.
   Color _cardColor(BuildContext context) {
-    return Color(
-      AppColors.cardPalette[task.colorIndex % AppColors.cardPalette.length],
-    );
+    return AppColors.cardSurface(context);
   }
 
-  /// Calculates a darker accent color for the left duration bar.
-  Color _barColor(BuildContext context) {
-    final base = _cardColor(context);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final hsl = HSLColor.fromColor(base);
-    return hsl
-        .withLightness(isDark ? 0.46 : 0.50)
-        .withSaturation(0.68)
-        .toColor();
-  }
+  /// The accent color for this task's duration bar, chip, and progress —
+  /// used only as a small tint/text color, never as the card background
+  Color _barColor(BuildContext context) =>
+      AppColors.accentFor(context, task.colorIndex).text;
+
+  /// Soft tint of the accent color, for the duration bar's fill.
+  Color _barTint(BuildContext context) =>
+      AppColors.accentFor(context, task.colorIndex).tint;
 
   @override
   Widget build(BuildContext context) {
@@ -59,10 +56,16 @@ class TaskCard extends StatelessWidget {
         }
       },
       child: GestureDetector(
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => TaskDetailScreen(task: task)),
-        ),
+        onTap: () {
+          if (isQuickTask(task)) {
+            showTaskQuickSheet(context, task);
+          } else {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => TaskDetailScreen(task: task)),
+            );
+          }
+        },
         child: Container(
           decoration: BoxDecoration(
             color: _cardColor(context),
@@ -95,12 +98,14 @@ class TaskCard extends StatelessWidget {
                                 task.title,
                                 style: Theme.of(context).textTheme.titleMedium
                                     ?.copyWith(
-                                      color: AppColors.lightPrimary,
+                                      color: task.isCompleted
+                                          ? AppColors.subtextColor(context)
+                                          : null,
                                       fontSize: 15,
                                       decoration: task.isCompleted
                                           ? TextDecoration.lineThrough
                                           : null,
-                                      decorationColor: AppColors.lightPrimary,
+                                      // decorationColor: AppColors.lightPrimary,
                                       decorationThickness: 2,
                                     ),
                                 maxLines: 2,
@@ -139,13 +144,14 @@ class TaskCard extends StatelessWidget {
 
   /// Builds the stylized left bar displaying task dates.
   Widget _durationBar(BuildContext context, Task task) {
-    final barColor = _barColor(context);
+    final tint = _barTint(context);
+    final accent = _barColor(context);
     final sameDay = task.isSingleDay;
 
     return Container(
       width: 60,
       decoration: BoxDecoration(
-        color: barColor,
+        color: tint,
         borderRadius: const BorderRadius.horizontal(
           left: Radius.circular(AppSizes.radiusCard),
         ),
@@ -161,15 +167,21 @@ class TaskCard extends StatelessWidget {
             _barDate(
               DateHelper.formatDay(task.startDate),
               DateHelper.formatMonth(task.startDate),
+              accent,
             ),
             if (!sameDay) ...[
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 5),
-                child: Container(width: 16, height: 1.5, color: Colors.white30),
+                child: Container(
+                  width: 16,
+                  height: 1.5,
+                  color: accent.withValues(alpha: 0.3),
+                ),
               ),
               _barDate(
                 DateHelper.formatDay(task.endDate),
                 DateHelper.formatMonth(task.endDate),
+                accent,
               ),
             ],
           ],
@@ -179,25 +191,25 @@ class TaskCard extends StatelessWidget {
   }
 
   /// Internal helper to format dates for the duration bar.
-  Widget _barDate(String day, String month) {
+  Widget _barDate(String day, String month, Color accent) {
     return Text.rich(
       TextSpan(
         children: [
           TextSpan(
             text: day,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: AppSizes.fontBody - 1,
               fontWeight: FontWeight.w900,
-              color: Colors.white,
+              color: accent,
             ),
           ),
           const TextSpan(text: ' '),
           TextSpan(
             text: month.toUpperCase(),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: AppSizes.fontLabel - 1,
               fontWeight: FontWeight.w600,
-              color: Colors.white70,
+              color: accent.withValues(alpha: 0.75),
             ),
           ),
         ],
@@ -217,7 +229,7 @@ class TaskCard extends StatelessWidget {
       child: Text(
         label,
         style: TextStyle(
-          fontSize: 11,
+          fontSize: 9,
           fontWeight: FontWeight.w900,
           color: color,
         ),

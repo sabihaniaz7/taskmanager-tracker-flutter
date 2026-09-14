@@ -57,19 +57,9 @@ class _TrackerDetailScreenState extends State<TrackerDetailScreen> {
     super.dispose();
   }
 
-  /// Calculates a darker accent color for the tracker based on its color index.
-  Color _barColor(BuildContext context) {
-    final base = Color(
-      AppColors.cardPalette[widget.trackerEntry.colorIndex %
-          AppColors.cardPalette.length],
-    );
-    final hsl = HSLColor.fromColor(base);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    return hsl
-        .withLightness(isDark ? 0.46 : 0.50)
-        .withSaturation(0.68)
-        .toColor();
-  }
+  /// Accent color for this tracker, from the same palette the cards use.
+  Color _barColor(BuildContext context) =>
+      AppColors.accentFor(context, widget.trackerEntry.colorIndex).text;
 
   @override
   Widget build(BuildContext context) {
@@ -531,8 +521,8 @@ class _TrackerDetailScreenState extends State<TrackerDetailScreen> {
                         // The individual date circle.
                         AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
-                          width: 34,
-                          height: 34,
+                          width: 26,
+                          height: 26,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: inactive
@@ -549,7 +539,7 @@ class _TrackerDetailScreenState extends State<TrackerDetailScreen> {
                             child: Text(
                               '$dayNum',
                               style: TextStyle(
-                                fontSize: 13,
+                                fontSize: 12,
                                 fontWeight: isToday
                                     ? FontWeight.w900
                                     : FontWeight.w600,
@@ -584,7 +574,7 @@ class _TrackerDetailScreenState extends State<TrackerDetailScreen> {
       alignment: alignment,
       child: FractionallySizedBox(
         widthFactor: 0.5,
-        child: Container(height: 34, color: color.withValues(alpha: 0.25)),
+        child: Container(height: 26, color: color.withValues(alpha: 0.25)),
       ),
     );
   }
