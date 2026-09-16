@@ -34,7 +34,7 @@ class TaskQuickSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<TaskProvider>(
-      builder: (_, provider, __) {
+      builder: (_, provider, _) {
         final t = provider.allTasks.firstWhere(
           (e) => e.id == task.id,
           orElse: () => task,
