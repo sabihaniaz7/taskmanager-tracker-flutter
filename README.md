@@ -4,8 +4,8 @@ A Flutter productivity app for task management and habit tracking in one place.
 
 Built with `provider` for state management, local persistence, smart reminders, Android home screen widgets, and light/dark theming.
 
-![Flutter](https://img.shields.io/badge/Flutter-3.38.6-02569B?style=flat-square&logo=flutter&logoColor=white)
-![Dart](https://img.shields.io/badge/Dart-3.10.7-0175C2?style=flat-square&logo=dart&logoColor=white)
+![Flutter](https://img.shields.io/badge/Flutter-02569B?style=flat-square&logo=flutter&logoColor=white)
+![Dart](https://img.shields.io/badge/Dart-0175C2?style=flat-square&logo=dart&logoColor=white)
 ![Android](https://img.shields.io/badge/Android-6.0+%20(API%2023+)-3DDC84?style=flat-square&logo=android&logoColor=white)
 
 > [!IMPORTANT]
@@ -15,15 +15,15 @@ Built with `provider` for state management, local persistence, smart reminders, 
 
 | **Splash Screen (Dark)** | **Splash Screen (Light)** |
 | :---: | :---: |
-| ![Splash Screen](images/splashScreen_dark.png) | ![Splash Screen](images/splashScreen_light.png) |
+| ![Splash Screen](images/splashScreenDark.png) | ![Splash Screen](images/spalshScreenLight.png) |
 | **Task Screen (Dark)** | **Task Screen (Light)** |
-| ![Task Screen](images/tasks_dark.png) | ![Task Screen](images/tasks_light.png) |
+| ![Task Screen](images/tasksDark.png) | ![Task Screen](images/tasksLight.png) |
 | **Task Detail Screen** | **Task Detail Screen** |
 | ![Task Detail Screen](images/taskDetailScreen_dark.png) | ![Task Detail Screen](images/taskDetailScreen2_dark.png) |
 | **Add Task** | **Add Task** |
 | ![Add Task Dark Mode](images/addDark.png) | ![Add Task Light Mode](images/addLight.png) |
 | **Tracker Screen** | **Tracker Screen** |
-| ![Tracker Screen](images/tracker_dark.png) | ![Tracker Screen](images/tracker_light.png) |
+| ![Tracker Screen](images/trackerDark.png) | ![Tracker Screen](images/trackerLight.png) |
 | **Tracker Detail Screen** | **Tracker Detail Screen** |
 | ![Tracker Detail Screen](images/trackerDetailScreen_dark.png) | ![Tracker Detail Screen](images/trackerDetailScreen_dark2.png) |
 | **Reminder System** | **Notification** |
