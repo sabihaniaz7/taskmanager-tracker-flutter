@@ -5,6 +5,7 @@ import 'package:taskmanager/providers/tracker_provider.dart';
 import 'package:taskmanager/screens/splash_screen.dart';
 import 'package:taskmanager/services/notification_service.dart';
 import 'package:taskmanager/utils/app_theme.dart';
+import 'package:flutter/services.dart';
 
 /// The entry point of the application.
 ///
@@ -22,7 +23,16 @@ void main() async {
   try {
     saved = await ThemeModeNotifier.load();
   } catch (_) {}
-
+  // Make status bar fully transparent so it matches app's background color
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor:
+          Colors.transparent, // Fixes the greyish overlay on Android
+      statusBarIconBrightness: Brightness.dark, // Black icons for light themes
+      statusBarBrightness:
+          Brightness.light, // iOS configuration for light themes
+    ),
+  );
   runApp(
     MultiProvider(
       providers: [
